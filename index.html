@@ -261,6 +261,7 @@ h2 { font-size: 1.45rem; margin: 30px 0 12px; font-weight: 750; }
 .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--text)); box-shadow: 0 0 8px var(--c, transparent); }
 .chip:hover { color: var(--head); border-color: var(--c, var(--stroke-2)); }
 .chip[aria-pressed="true"] { color: var(--head); border-color: var(--c, var(--cyan)); background: color-mix(in srgb, var(--c, var(--cyan)) 14%, transparent); box-shadow: 0 0 18px -6px var(--c, var(--cyan)); }
+.sample-note { margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; font-size: .82rem; font-weight: 600; color: var(--amber); border: 1px dashed color-mix(in srgb, var(--amber) 55%, transparent); background: color-mix(in srgb, var(--amber) 8%, transparent); }
 .count { font-family: var(--mono); color: var(--muted); font-size: .78rem; letter-spacing: .06em; margin: 0 0 14px; }
 .count b { color: var(--head); }
 
@@ -650,6 +651,7 @@ footer.site b { color: var(--head); }
       </div>
       <div class="chips" id="chips" role="group" aria-label="Body system quick filter"></div>
     </div>
+    <p class="sample-note" id="sampleNote" hidden>Sample data for testing. Replace with the student's own verified medicines before submission.</p>
     <p class="count" id="count" aria-live="polite"></p>
     <div class="grid" id="grid"></div>
   </section>
@@ -749,7 +751,31 @@ const MEDICINES = [
     extra: { }
   },
   */
+
+  /* ---- SAMPLE DATA so the site can be tested. Replace every entry below
+     with your own checked medicines, then set SAMPLE_DATA to false. ---- */
+  { name: "Amlodipine", drugClass: "Calcium channel blocker (dihydropyridine)", system: "Cardiovascular", use: "Hypertension", mechanism: "Blocks L-type calcium channels in vascular smooth muscle, causing vasodilation", adverse: "Peripheral (ankle) oedema", source: "SAMPLE – replace with your verified source" },
+  { name: "Lisinopril", drugClass: "ACE inhibitor", system: "Cardiovascular", use: "Hypertension and heart failure", mechanism: "Inhibits angiotensin-converting enzyme, reducing formation of angiotensin II", adverse: "Dry cough", source: "SAMPLE – replace with your verified source" },
+  { name: "Atorvastatin", drugClass: "HMG-CoA reductase inhibitor (statin)", system: "Cardiovascular", use: "Hyperlipidaemia", mechanism: "Inhibits HMG-CoA reductase, reducing cholesterol synthesis in the liver", adverse: "Muscle pain (myopathy)", source: "SAMPLE – replace with your verified source" },
+  { name: "Furosemide", drugClass: "Loop diuretic", system: "Cardiovascular", use: "Oedema", mechanism: "Inhibits the Na-K-2Cl co-transporter in the thick ascending limb of the loop of Henle", adverse: "Hypokalaemia", source: "SAMPLE – replace with your verified source" },
+  { name: "Paracetamol", drugClass: "Analgesic and antipyretic", system: "Central nervous system", use: "Mild to moderate pain and fever", mechanism: "Inhibits prostaglandin synthesis, mainly in the central nervous system", adverse: "Liver damage in overdose", source: "SAMPLE – replace with your verified source" },
+  { name: "Fluoxetine", drugClass: "Selective serotonin reuptake inhibitor (SSRI)", system: "Central nervous system", use: "Depression", mechanism: "Selectively blocks reuptake of serotonin into the presynaptic neuron", adverse: "Nausea", source: "SAMPLE – replace with your verified source" },
+  { name: "Diazepam", drugClass: "Benzodiazepine", system: "Central nervous system", use: "Anxiety", mechanism: "Enhances the effect of GABA at GABA-A receptors", adverse: "Drowsiness", source: "SAMPLE – replace with your verified source" },
+  { name: "Levodopa", drugClass: "Dopamine precursor", system: "Central nervous system", use: "Parkinson's disease", mechanism: "Crosses the blood-brain barrier and is converted to dopamine in the brain", adverse: "Dyskinesia (involuntary movements)", source: "SAMPLE – replace with your verified source" },
+  { name: "Phenytoin", drugClass: "Antiepileptic", system: "Central nervous system", use: "Epilepsy", mechanism: "Blocks voltage-gated sodium channels in neurons", adverse: "Gingival hyperplasia", source: "SAMPLE – replace with your verified source" },
+  { name: "Salbutamol", drugClass: "Short-acting beta-2 agonist", system: "Respiratory", use: "Relief of bronchospasm in asthma", mechanism: "Stimulates beta-2 receptors in bronchial smooth muscle, causing bronchodilation", adverse: "Tremor", source: "SAMPLE – replace with your verified source" },
+  { name: "Montelukast", drugClass: "Leukotriene receptor antagonist", system: "Respiratory", use: "Prevention of asthma symptoms", mechanism: "Blocks cysteinyl leukotriene (CysLT1) receptors in the airways", adverse: "Neuropsychiatric effects (e.g. sleep disturbance)", source: "SAMPLE – replace with your verified source" },
+  { name: "Cetirizine", drugClass: "Second-generation H1 antihistamine", system: "Respiratory", use: "Allergic rhinitis", mechanism: "Blocks peripheral histamine H1 receptors", adverse: "Mild drowsiness", source: "SAMPLE – replace with your verified source" },
+  { name: "Omeprazole", drugClass: "Proton pump inhibitor", system: "Gastrointestinal", use: "Peptic ulcer and gastro-oesophageal reflux disease", mechanism: "Irreversibly inhibits the H+/K+ ATPase (proton pump) in gastric parietal cells", adverse: "Headache", source: "SAMPLE – replace with your verified source" },
+  { name: "Metoclopramide", drugClass: "Dopamine D2 antagonist (prokinetic antiemetic)", system: "Gastrointestinal", use: "Nausea and vomiting", mechanism: "Blocks D2 receptors in the chemoreceptor trigger zone and increases gut motility", adverse: "Extrapyramidal effects", source: "SAMPLE – replace with your verified source" },
+  { name: "Loperamide", drugClass: "Opioid receptor agonist (antidiarrhoeal)", system: "Gastrointestinal", use: "Diarrhoea", mechanism: "Acts on opioid receptors in the gut wall to slow intestinal movement", adverse: "Constipation", source: "SAMPLE – replace with your verified source" },
+  { name: "Metformin", drugClass: "Biguanide", system: "Endocrine", use: "Type 2 diabetes mellitus", mechanism: "Reduces glucose production in the liver and improves insulin sensitivity", adverse: "Gastrointestinal upset (e.g. diarrhoea)", source: "SAMPLE – replace with your verified source" },
+  { name: "Glibenclamide", drugClass: "Sulfonylurea", system: "Endocrine", use: "Type 2 diabetes mellitus", mechanism: "Closes ATP-sensitive potassium channels in pancreatic beta cells, increasing insulin release", adverse: "Hypoglycaemia", source: "SAMPLE – replace with your verified source" },
+  { name: "Levothyroxine", drugClass: "Thyroid hormone (synthetic T4)", system: "Endocrine", use: "Hypothyroidism", mechanism: "Replaces thyroxine; converted to T3, which acts on nuclear thyroid hormone receptors", adverse: "Palpitations if the effect is excessive", source: "SAMPLE – replace with your verified source" },
+  { name: "Amoxicillin", drugClass: "Penicillin (beta-lactam antibiotic)", system: "Infections", use: "Bacterial infections", mechanism: "Binds penicillin-binding proteins and inhibits bacterial cell wall synthesis", adverse: "Hypersensitivity reactions (rash)", source: "SAMPLE – replace with your verified source" },
+  { name: "Ciprofloxacin", drugClass: "Fluoroquinolone antibiotic", system: "Infections", use: "Bacterial infections (e.g. urinary tract infection)", mechanism: "Inhibits bacterial DNA gyrase and topoisomerase IV", adverse: "Tendon damage (tendinopathy)", source: "SAMPLE – replace with your verified source" },
 ];
+const SAMPLE_DATA = true;
 
 /* ===================== APP CODE (no content below) ===================== */
 (function () {
@@ -1459,6 +1485,8 @@ const MEDICINES = [
   $("#sourceList").innerHTML = sources.length
     ? sources.map((s) => `<li>${esc(s)}</li>`).join("")
     : "<li><em>Sources appear here once the medicines (with their source field) are added.</em></li>";
+
+  if (SAMPLE_DATA) $("#sampleNote").hidden = false;
 
   /* ---------- Init ---------- */
   quizStart();
