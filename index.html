@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="PharmaPedia (Demonstration) – a Pharm-D IT lab student project for exploring medicines and practising with a quiz. Not medical advice.">
+<title>PharmaPedia (Demonstration)</title>
+<style>
+/* ===================== THEME TOKENS ===================== */
+:root {
+  --bg: #f4f8fb;
+  --bg-2: #e8f1f7;
+  --surface: #ffffff;
+  --surface-2: #f7fafc;
+  --text: #13232f;
+  --muted: #5a6b78;
+  --border: #d7e2ea;
+  --primary: #0f8b8d;
+  --primary-2: #0a6e70;
+  --accent: #5b5bd6;
+  --glow: rgba(15, 139, 141, .28);
+  --ok: #1f9d55;
+  --ok-bg: #e3f6ea;
+  --bad: #d64545;
+  --bad-bg: #fbe7e7;
+  --warn-bg: #fff6dc;
+  --warn-text: #6b4e00;
+  --shadow: 0 1px 2px rgba(16, 35, 47, .06), 0 4px 14px rgba(16, 35, 47, .06);
+  --shadow-lift: 0 10px 30px rgba(16, 35, 47, .14), 0 0 0 1px var(--glow), 0 0 26px var(--glow);
+  --radius: 16px;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0d1419;
+  --bg-2: #111c23;
+  --surface: #16222b;
+  --surface-2: #1b2a34;
+  --text: #e6eef3;
+  --muted: #9bb0bd;
+  --border: #263845;
+  --primary: #2cc5c7;
+  --primary-2: #1fa9ab;
+  --accent: #8e8ef5;
+  --glow: rgba(44, 197, 199, .30);
+  --ok: #3ccf7a;
+  --ok-bg: #12301f;
+  --bad: #ff6b6b;
+  --bad-bg: #3a1a1c;
+  --warn-bg: #3a2f10;
+  --warn-text: #ffdf8a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .25);
+  --shadow-lift: 0 12px 32px rgba(0, 0, 0, .5), 0 0 0 1px var(--glow), 0 0 28px var(--glow);
+  color-scheme: dark;
+}
+
+/* ===================== BASE ===================== */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: radial-gradient(1200px 600px at 100% -10%, var(--bg-2), transparent 60%), var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+  transition: background-color .3s, color .3s;
+}
+a { color: var(--primary); }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ===================== DISCLAIMER (every page) ===================== */
+.disclaimer {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ===================== HEADER / NAV ===================== */
+header.site {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav { display: flex; align-items: center; gap: 12px; min-height: 64px; flex-wrap: wrap; padding: 8px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; text-decoration: none; color: var(--text); margin-right: auto; }
+.brand small { font-weight: 500; color: var(--muted); font-size: .78rem; display: block; line-height: 1; }
+.logo {
+  width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; font-size: 1.1rem;
+}
+.menu { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+.menu a {
+  display: block; padding: 8px 14px; border-radius: 999px; text-decoration: none;
+  color: var(--muted); font-weight: 600; transition: background .2s, color .2s;
+}
+.menu a:hover { background: var(--surface-2); color: var(--text); }
+.menu a[aria-current="page"] { background: var(--primary); color: #fff; }
+.theme-btn {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem;
+  transition: transform .3s;
+}
+.theme-btn:hover { transform: rotate(20deg); }
+
+/* ===================== PAGES + FADE TRANSITION ===================== */
+main { padding: 28px 0 48px; }
+.page { display: none; opacity: 0; transform: translateY(8px); transition: opacity .35s ease, transform .35s ease; }
+.page.active { display: block; }
+.page.visible { opacity: 1; transform: none; }
+
+h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); margin: 0 0 6px; letter-spacing: -.02em; }
+h2 { font-size: 1.3rem; margin: 28px 0 10px; }
+.lead { color: var(--muted); margin: 0 0 22px; max-width: 70ch; }
+
+/* ===================== EXPLORER CONTROLS ===================== */
+.controls {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 10px; margin-bottom: 14px;
+}
+.field { position: relative; }
+.field input, .controls select {
+  width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font: inherit; box-shadow: var(--shadow);
+  transition: border-color .2s, box-shadow .2s;
+}
+.field input { padding-left: 40px; }
+.field .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.field input:focus, .controls select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--glow); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip {
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  padding: 6px 14px; border-radius: 999px; font-size: .9rem; font-weight: 600;
+  transition: background .2s, color .2s, transform .15s, border-color .2s;
+}
+.chip:hover { transform: translateY(-1px); border-color: var(--primary); }
+.chip[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+.count { color: var(--muted); font-size: .9rem; margin: 0 0 16px; }
+
+/* ===================== CARD GRID ===================== */
+.grid {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+.card-wrap { perspective: 1200px; }
+.card-wrap.enter { animation: slideIn .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.card-wrap.leave { animation: fadeOut .18s ease both; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(26px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes fadeOut { to { opacity: 0; transform: scale(.96); } }
+
+.card {
+  display: grid; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .7s cubic-bezier(.3, .9, .3, 1);
+  border-radius: var(--radius);
+}
+.card.flipped { transform: rotateY(180deg); }
+.face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: var(--shadow);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s;
+}
+.face.back { transform: rotateY(180deg); background: linear-gradient(160deg, var(--surface), var(--surface-2)); }
+.card-wrap:hover .face { box-shadow: var(--shadow-lift); border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
+.card-wrap:hover .card:not(.flipped) .face.front,
+.card-wrap:hover .card.flipped .face.back { transform: translateY(-6px); }
+.card-wrap:hover .card.flipped .face.back { transform: rotateY(180deg) translateY(-6px); }
+.face h3 { margin: 0; font-size: 1.15rem; }
+.tag {
+  align-self: flex-start; font-size: .75rem; font-weight: 700; letter-spacing: .02em;
+  padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 14%, transparent); color: var(--primary);
+}
+.kv { margin: 0; }
+.kv dt { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+.kv dd { margin: 2px 0 10px; }
+.face .spacer { flex: 1; }
+.flip-btn {
+  border: none; border-radius: 10px; padding: 9px 12px; font-weight: 700;
+  background: var(--primary); color: #fff; transition: background .2s, transform .15s;
+}
+.flip-btn:hover { background: var(--primary-2); }
+.flip-btn:active { transform: scale(.97); }
+.flip-btn.ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+.src { font-size: .78rem; color: var(--muted); }
+.empty {
+  grid-column: 1 / -1; text-align: center; padding: 40px 16px; color: var(--muted);
+  border: 2px dashed var(--border); border-radius: var(--radius); animation: slideIn .4s both;
+}
+
+/* ===================== QUIZ ===================== */
+.quiz-box {
+  max-width: 720px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: clamp(18px, 4vw, 32px); box-shadow: var(--shadow);
+}
+.quiz-start { text-align: center; }
+.quiz-start .big { font-size: 3rem; }
+.btn {
+  border: none; border-radius: 12px; padding: 12px 22px; font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+  box-shadow: 0 6px 18px var(--glow); transition: transform .15s, box-shadow .2s, opacity .2s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px var(--glow); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn.secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); box-shadow: none; }
+.rules { text-align: left; display: inline-block; color: var(--muted); margin: 12px 0 22px; padding-left: 20px; }
+
+.progress-top { display: flex; justify-content: space-between; font-size: .9rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+.progress { height: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 22px; }
+.progress span {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+  transition: width .6s cubic-bezier(.3, .9, .3, 1);
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.question { font-size: 1.2rem; font-weight: 700; margin: 0 0 6px; }
+.q-hint { color: var(--muted); font-size: .9rem; margin: 0 0 16px; }
+.q-anim { animation: qIn .4s ease both; }
+@keyframes qIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+.options { display: grid; gap: 10px; }
+.opt {
+  text-align: left; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border);
+  background: var(--surface-2); color: var(--text); font-weight: 600;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+.opt:hover:not(:disabled) { border-color: var(--primary); transform: translateX(4px); }
+.opt:disabled { cursor: default; }
+.opt.correct { background: var(--ok-bg); border-color: var(--ok); color: var(--text); animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); animation: shake .45s ease; }
+.opt.correct::after { content: "  ✓"; color: var(--ok); }
+.opt.wrong::after { content: "  ✗"; color: var(--bad); }
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.05); box-shadow: 0 0 0 8px color-mix(in srgb, var(--ok) 25%, transparent); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+
+.feedback { margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-weight: 600; animation: qIn .3s both; }
+.feedback.ok { background: var(--ok-bg); color: var(--ok); }
+.feedback.no { background: var(--bad-bg); color: var(--bad); }
+.feedback .fb-src { display: block; font-weight: 400; font-size: .82rem; color: var(--muted); margin-top: 4px; }
+.quiz-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+.result { text-align: center; }
+.score-ring { width: 170px; height: 170px; margin: 6px auto 14px; position: relative; }
+.score-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.score-ring circle { fill: none; stroke-width: 12; }
+.score-ring .track { stroke: var(--surface-2); }
+.score-ring .bar { stroke: url(#ringGrad); stroke-linecap: round; transition: stroke-dashoffset 1.4s cubic-bezier(.3, .9, .3, 1); }
+.score-num { position: absolute; inset: 0; display: grid; place-items: center; font-size: 2.6rem; font-weight: 800; }
+.score-num small { display: block; font-size: .9rem; color: var(--muted); font-weight: 600; text-align: center; }
+.result-msg { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px; }
+.review { text-align: left; margin: 20px 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.review li { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border-left: 4px solid var(--ok); font-size: .92rem; }
+.review li.x { border-left-color: var(--bad); }
+.review .muted { color: var(--muted); }
+.result .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+
+/* ===================== ABOUT ===================== */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.panel h2 { margin-top: 0; }
+.panel ul, .panel ol { padding-left: 20px; margin: 0; }
+.panel li { margin-bottom: 6px; }
+
+footer.site { border-top: 1px solid var(--border); padding: 18px 0; color: var(--muted); font-size: .88rem; text-align: center; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 720px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls .field { grid-column: 1 / -1; }
+  .nav nav { order: 3; width: 100%; }
+  .menu { width: 100%; justify-content: space-between; }
+  .menu .long { display: none; }
+  .menu li { flex: 1; }
+  .menu a { text-align: center; padding: 8px 6px; font-size: .92rem; }
+}
+
+/* ===================== REDUCED MOTION ===================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .card-wrap:hover .face { transform: none !important; }
+  .card-wrap:hover .card.flipped .face.back { transform: rotateY(180deg) !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="disclaimer" role="note">⚠️ Student project for the Pharm-D, IT lab. Not medical advice.</div>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#explorer" aria-label="PharmaPedia home">
+      <span class="logo" aria-hidden="true">℞</span>
+      <span>PharmaPedia<small>(Demonstration)</small></span>
+    </a>
+    <nav aria-label="Main menu">
+      <ul class="menu">
+        <li><a href="#explorer" data-page="explorer">Explorer</a></li>
+        <li><a href="#quiz" data-page="quiz"><span class="long">Practice </span>Quiz</a></li>
+        <li><a href="#about" data-page="about">About<span class="long"> &amp; Sources</span></a></li>
+      </ul>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark mode">🌙</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===================== PAGE 1: EXPLORER ===================== -->
+  <section class="page" id="page-explorer" aria-labelledby="h-explorer">
+    <h1 id="h-explorer">Medicine Explorer</h1>
+    <p class="lead">Search the medicines, filter by body system and sort the list. Tap <strong>Show mechanism</strong> on any card to flip it.</p>
+
+    <div class="controls">
+      <div class="field">
+        <span class="icon" aria-hidden="true">🔍</span>
+        <label for="search" class="sr-only">Search medicines</label>
+        <input id="search" type="search" placeholder="Search by name, class or use…" autocomplete="off">
+      </div>
+      <div>
+        <label for="systemSel" class="sr-only">Filter by body system</label>
+        <select id="systemSel"></select>
+      </div>
+      <div>
+        <label for="sortSel" class="sr-only">Sort</label>
+        <select id="sortSel">
+          <option value="az">Name A → Z</option>
+          <option value="za">Name Z → A</option>
+          <option value="class">Drug class</option>
+          <option value="system">Body system</option>
+        </select>
+      </div>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Body system quick filter"></div>
+    <p class="count" id="count" aria-live="polite"></p>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- ===================== PAGE 2: QUIZ ===================== -->
+  <section class="page" id="page-quiz" aria-labelledby="h-quiz">
+    <h1 id="h-quiz">Practice Quiz</h1>
+    <p class="lead">Ten questions built only from the medicines in the Explorer. Feedback after every answer.</p>
+    <div class="quiz-box" id="quizBox" aria-live="polite"></div>
+  </section>
+
+  <!-- ===================== PAGE 3: ABOUT ===================== -->
+  <section class="page" id="page-about" aria-labelledby="h-about">
+    <h1 id="h-about">About &amp; Sources</h1>
+    <p class="lead">What this project is, how it was made, and where the pharmacy content came from.</p>
+
+    <div class="panel">
+      <h2>About this project</h2>
+      <p>PharmaPedia (Demonstration) is an educational website made for the Pharm-D IT lab. It lets a pharmacy student browse medicines, see each medicine's class, use, mechanism of action and an adverse effect, and test themselves with a practice quiz.</p>
+      <ul>
+        <li><strong>Explorer:</strong> search, filter by body system, sort, and flip cards to see the mechanism.</li>
+        <li><strong>Practice Quiz:</strong> 10 questions with instant feedback and a final score.</li>
+        <li><strong>Offline:</strong> one HTML file, no internet, no libraries.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>Sources of pharmacy content</h2>
+      <p>All medicine content was written and checked by the student. The AI tool only arranged it into a website. Sources listed against the medicines:</p>
+      <ul id="sourceList"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>AI declaration</h2>
+      <p>An AI development tool was used to build the layout, styling, animations, search/filter/sort logic and quiz engine. It was <strong>not</strong> used to write any dose, strength, frequency, interaction, contraindication or schedule. Quiz questions are generated automatically from the student's own medicine data, so every correct answer comes from that data.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Privacy &amp; safety</h2>
+      <ul>
+        <li>No login, no sign-up, no name boxes. Nothing you type or click is stored or sent anywhere.</li>
+        <li>No real patient information is used.</li>
+        <li>This site teaches; it does not advise any person on what to take.</li>
+        <li>Not the website of any real pharmacy, hospital or company.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">PharmaPedia (Demonstration) · Student project for the Pharm-D, IT lab. Not medical advice.</div>
+</footer>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+/* =====================================================================
+   MEDICINE DATA – STUDENT-WRITTEN CONTENT ONLY
+   ---------------------------------------------------------------------
+   Paste the 20 medicines from MediGuide_Explorer.html here, exactly as
+   written. Do NOT let an AI fill in or change any of these fields.
+
+   Fields:
+     name       – medicine name
+     drugClass  – pharmacological class
+     system     – body system (used by the filter)
+     use        – main use / indication
+     mechanism  – mechanism of action (shown on the back of the card)
+     adverse    – adverse effect (shown on the back of the card)
+     source     – where you checked this entry (book / page / website)
+     extra      – OPTIONAL { "Label": "text", ... } for any other field
+                  your original file has, shown on the back as written
+   ===================================================================== */
+const MEDICINES = [
+  /* Example of the format (delete this comment block once filled):
+  {
+    name: "",
+    drugClass: "",
+    system: "",
+    use: "",
+    mechanism: "",
+    adverse: "",
+    source: "",
+    extra: { }
+  },
+  */
+];
+
+/* ===================== APP CODE (no content below) ===================== */
+(function () {
+  "use strict";
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const meds = MEDICINES.filter((m) => m && m.name);
+
+  /* ---------- Theme (light / dark) – follows system, toggle is not saved ---------- */
+  const root = document.documentElement;
+  const themeBtn = $("#themeBtn");
+  function setTheme(t) {
+    root.dataset.theme = t;
+    themeBtn.textContent = t === "dark" ? "☀️" : "🌙";
+    themeBtn.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  }
+  const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
+  setTheme(darkMQ.matches ? "dark" : "light");
+  darkMQ.addEventListener("change", (e) => setTheme(e.matches ? "dark" : "light"));
+  themeBtn.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+
+  /* ---------- Router with fade transition ---------- */
+  const pages = ["explorer", "quiz", "about"];
+  let current = null;
+  function show(name) {
+    if (!pages.includes(name)) name = "explorer";
+    if (name === current) return;
+    const next = $("#page-" + name);
+    const prev = current && $("#page-" + current);
+    document.querySelectorAll(".menu a").forEach((a) => {
+      if (a.dataset.page === name) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+    const enter = () => {
+      next.classList.add("active");
+      requestAnimationFrame(() => requestAnimationFrame(() => next.classList.add("visible")));
+      if (name === "explorer") renderCards(true);
+      window.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" });
+    };
+    if (prev) {
+      prev.classList.remove("visible");
+      setTimeout(() => { prev.classList.remove("active"); enter(); }, reduceMotion.matches ? 0 : 250);
+    } else enter();
+    current = name;
+  }
+  window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+  /* ---------- Explorer ---------- */
+  const grid = $("#grid"), search = $("#search"), systemSel = $("#systemSel"), sortSel = $("#sortSel"), chips = $("#chips"), count = $("#count");
+  const systems = [...new Set(meds.map((m) => m.system).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  let activeSystem = "all";
+
+  systemSel.innerHTML = '<option value="all">All body systems</option>' + systems.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+  chips.innerHTML = ['all', ...systems].map((s) => `<button type="button" class="chip" data-sys="${esc(s)}" aria-pressed="${s === "all"}">${s === "all" ? "All" : esc(s)}</button>`).join("");
+
+  function setSystem(s) {
+    activeSystem = s;
+    systemSel.value = s;
+    chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.sys === s)));
+    renderCards();
+  }
+  chips.addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) setSystem(b.dataset.sys); });
+  systemSel.addEventListener("change", () => setSystem(systemSel.value));
+  sortSel.addEventListener("change", () => renderCards());
+  let searchTimer;
+  search.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => renderCards(), 140); });
+
+  function filtered() {
+    const q = search.value.trim().toLowerCase();
+    let list = meds.filter((m) => {
+      if (activeSystem !== "all" && m.system !== activeSystem) return false;
+      if (!q) return true;
+      return [m.name, m.drugClass, m.use, m.system].join(" ").toLowerCase().includes(q);
+    });
+    const by = (k) => (a, b) => String(a[k] || "").localeCompare(String(b[k] || "")) || a.name.localeCompare(b.name);
+    const s = sortSel.value;
+    list.sort(s === "za" ? (a, b) => b.name.localeCompare(a.name) : s === "class" ? by("drugClass") : s === "system" ? by("system") : by("name"));
+    return list;
+  }
+
+  function cardHTML(m, i) {
+    const extra = m.extra && typeof m.extra === "object" ? Object.entries(m.extra).filter(([, v]) => v) : [];
+    return `
+    <article class="card-wrap enter" style="--i:${i}">
+      <div class="card">
+        <div class="face front">
+          <span class="tag">${esc(m.system || "—")}</span>
+          <h3>${esc(m.name)}</h3>
+          <dl class="kv">
+            <dt>Class</dt><dd>${esc(m.drugClass)}</dd>
+            <dt>Use</dt><dd>${esc(m.use)}</dd>
+          </dl>
+          <div class="spacer"></div>
+          <button type="button" class="flip-btn" data-flip aria-expanded="false">Show mechanism ↻</button>
+        </div>
+        <div class="face back" aria-hidden="true">
+          <h3>${esc(m.name)}</h3>
+          <dl class="kv">
+            <dt>Mechanism of action</dt><dd>${esc(m.mechanism)}</dd>
+            <dt>Adverse effect</dt><dd>${esc(m.adverse)}</dd>
+            ${extra.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}
+          </dl>
+          <div class="spacer"></div>
+          ${m.source ? `<div class="src">Source: ${esc(m.source)}</div>` : ""}
+          <button type="button" class="flip-btn ghost" data-flip tabindex="-1">↺ Back</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  let renderToken = 0;
+  function renderCards(initial) {
+    const token = ++renderToken;
+    const list = filtered();
+    count.textContent = meds.length
+      ? `Showing ${list.length} of ${meds.length} medicines`
+      : "";
+    const paint = () => {
+      if (token !== renderToken) return;
+      if (!meds.length) {
+        grid.innerHTML = `<div class="empty"><strong>No medicines loaded yet.</strong><br>Paste the 20 student-written medicines into the <code>MEDICINES</code> list in index.html.</div>`;
+        return;
+      }
+      grid.innerHTML = list.length
+        ? list.map((m, i) => cardHTML(m, initial ? i : Math.min(i, 8))).join("")
+        : `<div class="empty">No medicines match your search. Try another word or choose “All”.</div>`;
+    };
+    const old = grid.querySelectorAll(".card-wrap");
+    if (!initial && old.length && !reduceMotion.matches) {
+      old.forEach((c) => c.classList.add("leave"));
+      setTimeout(paint, 170);
+    } else paint();
+  }
+
+  grid.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-flip]");
+    if (!btn) return;
+    const card = btn.closest(".card");
+    const flipped = card.classList.toggle("flipped");
+    const front = $(".front", card), back = $(".back", card);
+    front.setAttribute("aria-hidden", String(flipped));
+    back.setAttribute("aria-hidden", String(!flipped));
+    $("[data-flip]", front).tabIndex = flipped ? -1 : 0;
+    $("[data-flip]", front).setAttribute("aria-expanded", String(flipped));
+    $("[data-flip]", back).tabIndex = flipped ? 0 : -1;
+    setTimeout(() => $("[data-flip]", flipped ? back : front).focus({ preventScroll: true }), reduceMotion.matches ? 0 : 350);
+  });
+
+  /* ---------- Quiz (questions generated from MEDICINES only) ---------- */
+  const QUIZ_LEN = 10;
+  const quizBox = $("#quizBox");
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  // Each template asks about one field; wrong options come from OTHER medicines' values.
+  const templates = [
+    { ask: "drugClass", q: (m) => `Which drug class does <em>${esc(m.name)}</em> belong to?` },
+    { ask: "system", q: (m) => `Which body system is <em>${esc(m.name)}</em> listed under?` },
+    { ask: "name", from: "use", q: (m) => `Which medicine is used for: <em>${esc(m.use)}</em>?` },
+    { ask: "name", from: "mechanism", q: (m) => `Which medicine has this mechanism of action?<br><em>“${esc(m.mechanism)}”</em>` },
+    { ask: "name", from: "adverse", q: (m) => `Which medicine is listed with this adverse effect: <em>${esc(m.adverse)}</em>?` },
+  ];
+
+  function buildQuestion(m, t) {
+    if (!m[t.ask] || (t.from && !m[t.from])) return null;
+    const answer = m[t.ask];
+    // A distractor must not be a valid answer too (e.g. two medicines with the same use)
+    const validAnswers = new Set(meds.filter((o) => !t.from || o[t.from] === m[t.from]).filter((o) => t.from || o.name === m.name).map((o) => o[t.ask]));
+    const pool = [...new Set(meds.map((o) => o[t.ask]).filter((v) => v && !validAnswers.has(v)))];
+    if (pool.length < 3) return null;
+    return { text: t.q(m), answer, options: shuffle([answer, ...shuffle(pool).slice(0, 3)]), med: m };
+  }
+
+  function makeQuiz() {
+    const qs = [];
+    const usedKeys = new Set();
+    let tries = 0;
+    let medOrder = shuffle(meds);
+    while (qs.length < QUIZ_LEN && tries < 400) {
+      tries++;
+      if (!medOrder.length) medOrder = shuffle(meds);
+      const m = medOrder.pop();
+      const t = templates[Math.floor(Math.random() * templates.length)];
+      const key = m.name + "|" + t.ask + "|" + (t.from || "");
+      if (usedKeys.has(key)) continue;
+      const q = buildQuestion(m, t);
+      if (q) { usedKeys.add(key); qs.push(q); }
+    }
+    return qs;
+  }
+
+  let quiz = null;
+
+  function quizStart() {
+    const ready = meds.length >= 4;
+    quizBox.innerHTML = `
+      <div class="quiz-start q-anim">
+        <div class="big" aria-hidden="true">🧪</div>
+        <h2 style="margin-top:6px">Ready to test yourself?</h2>
+        <ul class="rules">
+          <li>${QUIZ_LEN} multiple-choice questions</li>
+          <li>Instant feedback after each answer</li>
+          <li>Score out of ${QUIZ_LEN} at the end – nothing is saved</li>
+        </ul>
+        <div><button class="btn" id="startQuiz" ${ready ? "" : "disabled"}>Start quiz</button></div>
+        ${ready ? "" : `<p class="q-hint" style="margin-top:12px">Add at least 4 medicines to the MEDICINES list to enable the quiz.</p>`}
+      </div>`;
+    if (ready) $("#startQuiz").addEventListener("click", () => {
+      const questions = makeQuiz();
+      quiz = { questions, i: 0, score: 0, log: [] };
+      renderQuestion();
+    });
+  }
+
+  function renderQuestion() {
+    const { questions, i } = quiz;
+    const q = questions[i];
+    const total = questions.length;
+    quizBox.innerHTML = `
+      <div class="progress-top"><span>Question ${i + 1} of ${total}</span><span>Score: ${quiz.score}</span></div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${i}"><span id="bar" style="width:${(i / total) * 100}%"></span></div>
+      <div class="q-anim">
+        <p class="question">${q.text}</p>
+        <p class="q-hint">Choose one answer.</p>
+        <div class="options">${q.options.map((o, k) => `<button type="button" class="opt" data-k="${k}">${esc(o)}</button>`).join("")}</div>
+        <div id="fb"></div>
+        <div class="quiz-actions"><button class="btn" id="nextQ" hidden>${i + 1 === total ? "See result →" : "Next →"}</button></div>
+      </div>`;
+    quizBox.querySelector(".options").addEventListener("click", onAnswer);
+    $(".opt", quizBox).focus({ preventScroll: true });
+  }
+
+  function onAnswer(e) {
+    const btn = e.target.closest(".opt");
+    if (!btn || btn.disabled) return;
+    const q = quiz.questions[quiz.i];
+    const chosen = q.options[+btn.dataset.k];
+    const right = chosen === q.answer;
+    const opts = quizBox.querySelectorAll(".opt");
+    opts.forEach((o) => { o.disabled = true; if (q.options[+o.dataset.k] === q.answer) o.classList.add("correct"); });
+    if (!right) btn.classList.add("wrong");
+    if (right) quiz.score++;
+    quiz.log.push({ q, chosen, right });
+
+    const m = q.med;
+    $("#fb").innerHTML = `<div class="feedback ${right ? "ok" : "no"}">
+      ${right ? "✅ Correct!" : `❌ Not quite. The correct answer is <strong>${esc(q.answer)}</strong>.`}
+      <span class="fb-src">${esc(m.name)} – ${esc(m.drugClass)}${m.source ? " · Source: " + esc(m.source) : ""}</span>
+    </div>`;
+    $(".progress-top span:last-child", quizBox).textContent = "Score: " + quiz.score;
+    const bar = $("#bar");
+    requestAnimationFrame(() => { bar.style.width = ((quiz.i + 1) / quiz.questions.length) * 100 + "%"; });
+    $(".progress", quizBox).setAttribute("aria-valuenow", quiz.i + 1);
+
+    const next = $("#nextQ");
+    next.hidden = false;
+    next.focus({ preventScroll: true });
+    next.addEventListener("click", () => {
+      quiz.i++;
+      if (quiz.i < quiz.questions.length) renderQuestion(); else renderResult();
+    });
+  }
+
+  function renderResult() {
+    const total = quiz.questions.length;
+    const pct = Math.round((quiz.score / total) * 100);
+    const msg = pct >= 80 ? "Excellent work! 🎉" : pct >= 50 ? "Good effort – review the cards you missed." : "Keep practising – flip the cards in the Explorer and try again.";
+    const C = 2 * Math.PI * 70;
+    quizBox.innerHTML = `
+      <div class="result q-anim">
+        <div class="score-ring">
+          <svg viewBox="0 0 170 170" aria-hidden="true">
+            <defs><linearGradient id="ringGrad" x1="0" x2="1"><stop offset="0" stop-color="var(--primary)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
+            <circle class="track" cx="85" cy="85" r="70"/>
+            <circle class="bar" id="ring" cx="85" cy="85" r="70" stroke-dasharray="${C}" stroke-dashoffset="${C}"/>
+          </svg>
+          <div class="score-num"><div><span id="scoreNum">0</span><small>out of ${total}</small></div></div>
+        </div>
+        <p class="result-msg">${msg}</p>
+        <p class="q-hint">You scored ${pct}%.</p>
+        <ul class="review">${quiz.log.map((l, n) => `
+          <li class="${l.right ? "" : "x"}">${n + 1}. ${l.q.text.replace(/<br>/g, " ")}<br>
+            <span class="muted">${l.right ? "✓ " + esc(l.q.answer) : "Your answer: " + esc(l.chosen) + " · Correct: <strong>" + esc(l.q.answer) + "</strong>"}</span></li>`).join("")}
+        </ul>
+        <div class="actions">
+          <button class="btn" id="again">Try again</button>
+          <a class="btn secondary" href="#explorer" style="text-decoration:none">Back to Explorer</a>
+        </div>
+      </div>`;
+    $("#again").addEventListener("click", quizStart);
+
+    const ring = $("#ring");
+    requestAnimationFrame(() => requestAnimationFrame(() => { ring.style.strokeDashoffset = C * (1 - quiz.score / total); }));
+    countUp($("#scoreNum"), quiz.score);
+    if (pct >= 80) confetti();
+  }
+
+  function countUp(el, target) {
+    if (reduceMotion.matches || target === 0) { el.textContent = target; return; }
+    const dur = 1200, t0 = performance.now();
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- Confetti (canvas, no library) ---------- */
+  function confetti() {
+    if (reduceMotion.matches) return;
+    const cv = $("#confetti"), ctx = cv.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    ctx.scale(dpr, dpr);
+    const colors = ["#0f8b8d", "#5b5bd6", "#f5b700", "#ff6b6b", "#3ccf7a", "#2cc5c7"];
+    const parts = Array.from({ length: 160 }, () => ({
+      x: innerWidth / 2 + (Math.random() - .5) * 120, y: innerHeight * .35,
+      vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4,
+      w: 6 + Math.random() * 6, h: 8 + Math.random() * 8,
+      r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3,
+      c: colors[Math.floor(Math.random() * colors.length)],
+    }));
+    const t0 = performance.now();
+    (function frame(t) {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      parts.forEach((p) => {
+        p.vy += .35; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+        ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.cos(p.r * 2));
+        ctx.restore();
+      });
+      if (t - t0 < 3500) requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, innerWidth, innerHeight);
+    })(t0);
+  }
+
+  /* ---------- About: sources from the data ---------- */
+  const sources = [...new Set(meds.map((m) => m.source).filter(Boolean))];
+  $("#sourceList").innerHTML = sources.length
+    ? sources.map((s) => `<li>${esc(s)}</li>`).join("")
+    : "<li><em>Sources will appear here once the medicines (with their source field) are added.</em></li>";
+
+  /* ---------- Init ---------- */
+  quizStart();
+  show(location.hash.slice(1) || "explorer");
+})();
+</script>
+</body>
+</html>
