@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaPedia Match – Demonstration</title>
+  <meta name="description" content="PharmaPedia Match: a 2D educational pharmacy game. Student project for the Pharm-D IT lab. Not medical advice.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <main class="app">
+    <!-- START SCREEN -->
+    <section id="screen-start" class="screen active" aria-labelledby="title">
+      <div class="logo" aria-hidden="true"><span class="cap-a"></span><span class="cap-b"></span></div>
+      <h1 id="title">PharmaPedia <span>Match</span></h1>
+      <p class="tag">Demonstration · A 2D pharmacy learning game</p>
+
+      <div class="disclaimer" role="note">
+        <strong>Disclaimer:</strong> Student project for the Pharm-D, IT lab. Not medical advice.
+      </div>
+
+      <div class="how">
+        <h2>How to play</h2>
+        <ol>
+          <li>You get <b>15 rounds</b>, one for each medicine.</li>
+          <li>Match each medicine with its <b>drug class</b>, or find the medicine that belongs to a class.</li>
+          <li>Pick one of 4 answers. You see right or wrong straight away, with the explanation.</li>
+          <li><b>+10</b> for a correct answer, <b>+5 bonus</b> from a streak of 3 or more.</li>
+        </ol>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btn-play">▶ Start Game</button>
+        <button class="btn" id="btn-study">📇 Study Cards</button>
+        <button class="btn ghost" id="btn-sources">📚 Sources</button>
+      </div>
+      <p class="privacy">No login. No sign-up. Nothing you do is saved or sent anywhere.</p>
+    </section>
+
+    <!-- STUDY SCREEN -->
+    <section id="screen-study" class="screen" aria-labelledby="study-title">
+      <header class="bar">
+        <button class="btn small ghost" data-home>← Home</button>
+        <h2 id="study-title">Study Cards</h2>
+        <span class="pill" id="study-count"></span>
+      </header>
+      <p class="hint">Tap a card to flip it. Learn all 15, then start the game.</p>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <!-- PLAY SCREEN -->
+    <section id="screen-play" class="screen" aria-labelledby="question">
+      <header class="bar">
+        <button class="btn small ghost" data-home>← Quit</button>
+        <div class="stats">
+          <span class="pill">Round <b id="round">1</b>/<b id="total">15</b></span>
+          <span class="pill">Score <b id="score">0</b></span>
+          <span class="pill streak" id="streak-pill">🔥 <b id="streak">0</b></span>
+        </div>
+      </header>
+      <div class="progress" aria-hidden="true"><div id="progress-fill"></div></div>
+
+      <div class="stage">
+        <div class="capsule" id="capsule" aria-hidden="true">
+          <span class="half left"></span><span class="half right"></span>
+        </div>
+        <p class="qtype" id="qtype"></p>
+        <h2 class="question" id="question"></h2>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div class="feedback" id="feedback" role="status" aria-live="polite" hidden>
+        <p class="verdict" id="verdict"></p>
+        <p class="explain" id="explain"></p>
+        <button class="btn primary" id="btn-next">Next →</button>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="screen-result" class="screen" aria-labelledby="result-title">
+      <h2 id="result-title">Game Over</h2>
+      <div class="trophy" id="stars" aria-label="rating"></div>
+      <p class="big"><span id="final-score">0</span> points</p>
+      <p id="final-line"></p>
+      <div class="review" id="review"></div>
+      <div class="actions">
+        <button class="btn primary" id="btn-again">↻ Play Again</button>
+        <button class="btn" id="btn-study2">📇 Study Cards</button>
+        <button class="btn ghost" data-home>⌂ Home</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOURCES DIALOG -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="sources-title">
+      <h2 id="sources-title">Sources</h2>
+      <p>The pharmacy content in this game was written and checked by the student using:</p>
+      <ul id="sources-list"></ul>
+      <button class="btn primary" id="btn-close">Close</button>
+    </div>
+  </div>
+
+  <footer class="footer">Student project for the Pharm-D, IT lab. Not medical advice.</footer>
+
+  <script src="data.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
